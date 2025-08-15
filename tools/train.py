@@ -1,22 +1,33 @@
-import argparse
-import yaml
+import os
+import sys
+
+__dir__ = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(__dir__)
+sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "..")))
 
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 
-def load_config(file_path):
-    config = yaml.load(open(file_path, "rb"), Loader=yaml.Loader)
-    return config
+from utils.preprocess import preprocess
+from tools.dataset import RecognitionDataset
+
+def build_dataloader(config, mode, device, logger):
+    dataset = RecognitionDataset(config, mode, logger)
+    import ipdb; ipdb.set_trace()
+
+    loader_config = config[mode]["loader"]
+    batch_size = loader_config["batch_size_per_card"]
+    drop_last = loader_config["drop_last"]
+    shuffle = loader_config["shuffle"]
+    num_workers = loader_config["num_workers"]
+    import ipdb; ipdb.set_trace()
 
 
-def main(config_path):
-    config = load_config(config_path)
-    device = 'cpu' # todo: -> gpu
-
+def main(config, device, logger):
     # build dataloader
-    train_dataloader = build_dataloader(config, "Train", device)
-    val_dataloader = build_dataloader(config, "Eval", device)
+    train_dataloader = build_dataloader(config, "Train", device, logger)
+    val_dataloader = build_dataloader(config, "Eval", device, logger)
 
     # build loss
     loss_class = build_loss(config["Loss"])
@@ -53,7 +64,5 @@ def main(config_path):
     )
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--config", "-c", type=str, required=True, help="configuration file for training a model, e.g., configs/rec/rec_en_number_lite_train.yml")
-    args = parser.parse_args()
-    main(args.config)
+    config, device, logger = preprocess(is_train=True)
+    main(config, device, logger)

@@ -1,5 +1,5 @@
 Global:
-  use_gpu: True
+  use_gpu: False
   epoch_num: 500
   log_smooth_window: 20
   print_batch_step: 10
@@ -61,9 +61,8 @@ Metric:
 
 Train:
   dataset:
-    name: SimpleDataSet
-    data_dir: ./train_data/
-    label_file_list: ["./train_data/train_list.txt"]
+    name: RecognitionDataset
+    data_dir: ./ICDAR2015
     transforms:
       - DecodeImage: # load image
           img_mode: BGR
@@ -82,9 +81,8 @@ Train:
 
 Eval:
   dataset:
-    name: SimpleDataSet
-    data_dir: ./train_data/
-    label_file_list: ["./train_data/eval_list.txt"]
+    name: RecognitionDataset
+    data_dir: ./ICDAR2015
     transforms:
       - DecodeImage: # load image
           img_mode: BGR
