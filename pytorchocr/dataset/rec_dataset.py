@@ -1,6 +1,8 @@
 import os
 import cv2
 from torch.utils.data import Dataset
+from torchvision import transforms
+
 from pytorchocr.imgaug.transforms import create_transforms
 
 class RecognitionDataset(Dataset):
@@ -17,7 +19,7 @@ class RecognitionDataset(Dataset):
 
         self.do_shuffle = loader_config['shuffle']
         self.annotations = self.load_annotations()
-        self.transforms = create_transforms(dataset_config['transforms'])
+        self.transforms = self.load_transforms(dataset_config['transforms'])
         self.logger.info("Loaded the {} dataset. #samples = {}".format(self.mode, len(self.annotations)))
 
     def __len__(self):
@@ -31,6 +33,11 @@ class RecognitionDataset(Dataset):
         image_path = os.path.join(self.image_dir, image_file)
         image = cv2.imread(image_path)
 
+        if self.transforms:
+            image = self.transforms(image)
+            import ipdb; ipdb.set_trace()
+
+        # TODO: convert label word into label index
         return { 'image' : image, 'label' : label }
 
 
@@ -57,3 +64,9 @@ class RecognitionDataset(Dataset):
                 })
 
         return annotations
+
+
+    def load_transforms(self, transform_config):
+        transform_funcs = create_transforms(transform_config)
+        transform_composed = transforms.Compose(transform_funcs)
+        return transform_composed

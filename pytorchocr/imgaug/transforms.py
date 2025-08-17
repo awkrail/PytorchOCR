@@ -1,7 +1,13 @@
-from pytorchocr.imgaug.rec_aug import RecAug
+from torchvision import transforms
+
+from pytorchocr.imgaug.rec_aug import (
+    RecAug,
+    RecResizeImg,
+)
 
 TRANSFORM_DICTS = {
     "RecAug" : RecAug,
+    "RecResizeImg" : RecResizeImg,
 }
 
 def create_transforms(transform_param_list, global_config=None):
@@ -16,6 +22,9 @@ def create_transforms(transform_param_list, global_config=None):
         if global_config is not None:
             param.update(global_config)
 
-        transform_fn = TRANSFORM_DICTS[transform_name]
+        transform_fn = TRANSFORM_DICTS[transform_name](**param)
         transform_funcs.append(transform_fn)
+
+    # Convert numpy to torch.Tensor
+    # transform_funcs.append(transforms.ToTensor())
     return transform_funcs

@@ -1,4 +1,50 @@
+import math
 import random
+import cv2
+import numpy as np
+
+
+class RecResizeImg:
+    def __init__(
+        self,
+        image_shape,
+        padding = True,
+        interpolation = cv2.INTER_LINEAR,
+        **kwargs,
+    ):
+        self.image_shape = image_shape
+        self.padding = padding
+        self.interpolation = interpolation
+
+    def __call__(self, image):
+        imgC, imgH, imgW = self.image_shape
+        h, w, _ = image.shape
+
+        if not self.padding:
+            resized_image = cv2.resize(image, (imgW, imgH), interpolation = self.interpolation)
+            resized_w = imgW
+        else:
+            ratio = float(w / h)
+            if math.ceil(imgH * ratio) > imgW:
+                resized_w = imgW
+            else:
+                resized_w = int(math.ceil(imgH * ratio))
+            resized_image = cv2.resize(image, (resized_w, imgH))
+
+        resized_image = resized_image.astype(np.float32)
+        if imgC == 1:
+            resized_image = resized_image / 255
+            resized_image = resized_image[np.newaxis, :]
+        else:
+            resized_image = resized_image.transpose((2, 0, 1)) / 255
+
+        resized_image -= 0.5
+        resized_image /= 0.5
+
+        padding_im = np.zeros((imgC, imgH, imgW), dtype=np.float32)
+        padding_im[:, :, 0:resized_w] = resized_image
+        return padding_im
+
 
 class RecAug:
     def __init__(
@@ -81,6 +127,9 @@ class BaseDataAugmentation:
         return image
 
 
+"""
+Data Augumentation
+"""
 def get_crop(image, top_min = 1, top_max = 8):
     h, w, _ = image.shape
     top_min = 1
@@ -120,6 +169,6 @@ def jitter(image, min_h = 10, min_w = 10, multiply = 0.01):
 def add_gaussian_noise(image, mean = 0, var = 0.1):
     noise = np.random.normal(mean, var**0.5, image.shape)
     image = image + 0.5 * noise
-    image = np.clip(out, 0, 255)
+    image = np.clip(image, 0, 255)
     image = np.uint8(image)
     return image

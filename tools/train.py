@@ -14,14 +14,13 @@ from pytorchocr.dataset.rec_dataset import RecognitionDataset
 
 def build_dataloader(config, mode, device, logger):
     dataset = RecognitionDataset(config, mode, logger)
-    import ipdb; ipdb.set_trace()
+    out = dataset[0]
 
     loader_config = config[mode]["loader"]
     batch_size = loader_config["batch_size_per_card"]
     drop_last = loader_config["drop_last"]
     shuffle = loader_config["shuffle"]
     num_workers = loader_config["num_workers"]
-    import ipdb; ipdb.set_trace()
 
 
 def main(config, device, logger):
