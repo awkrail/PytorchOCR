@@ -64,9 +64,6 @@ Train:
     name: RecognitionDataset
     data_dir: ./ICDAR2015
     transforms:
-      - DecodeImage: # load image
-          img_mode: BGR
-          channel_first: False
       - RecAug: 
       - CTCLabelEncode: # Class handling label
       - RecResizeImg:

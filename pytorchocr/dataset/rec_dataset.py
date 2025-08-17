@@ -1,6 +1,7 @@
 import os
 import cv2
 from torch.utils.data import Dataset
+from pytorchocr.imgaug.transforms import create_transforms
 
 class RecognitionDataset(Dataset):
     def __init__(self, config, mode, logger):
@@ -16,8 +17,8 @@ class RecognitionDataset(Dataset):
 
         self.do_shuffle = loader_config['shuffle']
         self.annotations = self.load_annotations()
+        self.transforms = create_transforms(dataset_config['transforms'])
         self.logger.info("Loaded the {} dataset. #samples = {}".format(self.mode, len(self.annotations)))
-
 
     def __len__(self):
         return len(self.annotations)

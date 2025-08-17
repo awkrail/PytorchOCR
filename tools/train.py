@@ -10,7 +10,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 
 from utils.preprocess import preprocess
-from tools.dataset import RecognitionDataset
+from pytorchocr.dataset.rec_dataset import RecognitionDataset
 
 def build_dataloader(config, mode, device, logger):
     dataset = RecognitionDataset(config, mode, logger)
