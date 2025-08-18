@@ -19,7 +19,10 @@ class RecognitionDataset(Dataset):
 
         self.do_shuffle = loader_config['shuffle']
         self.annotations = self.load_annotations()
-        self.transforms = self.load_transforms(dataset_config['transforms'])
+        
+        self.image_transforms = self.load_transforms(dataset_config['image_transforms'])
+        self.label_transforms = self.load_transforms(dataset_config['label_transforms'])
+
         self.logger.info("Loaded the {} dataset. #samples = {}".format(self.mode, len(self.annotations)))
 
     def __len__(self):
@@ -33,9 +36,11 @@ class RecognitionDataset(Dataset):
         image_path = os.path.join(self.image_dir, image_file)
         image = cv2.imread(image_path)
 
-        if self.transforms:
-            image = self.transforms(image)
-            import ipdb; ipdb.set_trace()
+        if self.image_transforms:
+            image = self.image_transforms(image)
+
+        if self.label_transforms:
+            label = self.label_transforms(label)
 
         # TODO: convert label word into label index
         return { 'image' : image, 'label' : label }

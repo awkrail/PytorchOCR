@@ -1,13 +1,18 @@
-from torchvision import transforms
+import torch
 
 from pytorchocr.imgaug.rec_aug import (
     RecAug,
     RecResizeImg,
+    ToTensor,
 )
+
+from pytorchocr.imgaug.label_transform import CTCLabelEncode
 
 TRANSFORM_DICTS = {
     "RecAug" : RecAug,
     "RecResizeImg" : RecResizeImg,
+    "ToTensor" : ToTensor,
+    "CTCLabelEncode" : CTCLabelEncode,
 }
 
 def create_transforms(transform_param_list, global_config=None):
@@ -24,7 +29,4 @@ def create_transforms(transform_param_list, global_config=None):
 
         transform_fn = TRANSFORM_DICTS[transform_name](**param)
         transform_funcs.append(transform_fn)
-
-    # Convert numpy to torch.Tensor
-    # transform_funcs.append(transforms.ToTensor())
     return transform_funcs

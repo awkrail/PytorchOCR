@@ -1,7 +1,18 @@
 import math
+import torch
 import random
 import cv2
 import numpy as np
+
+
+class ToTensor:
+    def __init__(
+        self,
+    ):
+        pass
+
+    def __call__(self, image):
+        return torch.from_numpy(image)
 
 
 class RecResizeImg:
@@ -32,7 +43,7 @@ class RecResizeImg:
             resized_image = cv2.resize(image, (resized_w, imgH))
 
         resized_image = resized_image.astype(np.float32)
-        if imgC == 1:
+        if self.image_shape[0] == 1:
             resized_image = resized_image / 255
             resized_image = resized_image[np.newaxis, :]
         else:
@@ -40,10 +51,9 @@ class RecResizeImg:
 
         resized_image -= 0.5
         resized_image /= 0.5
-
-        padding_im = np.zeros((imgC, imgH, imgW), dtype=np.float32)
-        padding_im[:, :, 0:resized_w] = resized_image
-        return padding_im
+        padding_image = np.zeros((imgC, imgH, imgW), dtype=np.float32)
+        padding_image[:, :, 0:resized_w] = resized_image
+        return padding_image
 
 
 class RecAug:
