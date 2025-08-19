@@ -36,14 +36,14 @@ class RecognitionDataset(Dataset):
         image_path = os.path.join(self.image_dir, image_file)
         image = cv2.imread(image_path)
 
-        if self.image_transforms:
-            image = self.image_transforms(image)
+        image = self.image_transforms(image)
 
-        if self.label_transforms:
-            label = self.label_transforms(label)
+        label_info = self.label_transforms(label)
+        word = label_info['word']
+        label = label_info['label']
+        length = label_info['length']
 
-        # TODO: convert label word into label index
-        return { 'image' : image, 'label' : label }
+        return { 'image' : image, 'label' : label, 'word' : word, 'length' : length }
 
 
     def load_annotations(self):

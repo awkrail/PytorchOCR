@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 
 
-class ToTensor:
+class ToImageTensor:
     def __init__(
         self,
     ):

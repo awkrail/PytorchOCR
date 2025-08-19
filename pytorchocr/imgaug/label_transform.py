@@ -1,4 +1,16 @@
 import numpy as np
+import torch
+
+class ToLabelTensor:
+    def __init__(
+        self,
+    ):
+        pass
+
+    def __call__(self, label):
+        label['label'] = torch.from_numpy(label['label'])
+        return label
+
 
 class BaseRecLabelEncode:
     def __init__(
@@ -85,5 +97,12 @@ class CTCLabelEncode(BaseRecLabelEncode):
         char_list = self.encode(label)
         length = len(char_list)
         char_list = char_list + [0] * (self.max_text_len - length)
-        label = np.array(char_list)
-        return label
+        label_arr = np.array(char_list)
+
+        output = {
+            'word' : label,
+            'label' : label_arr,
+            'length' : length
+        }
+
+        return output
