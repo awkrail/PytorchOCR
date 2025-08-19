@@ -7,29 +7,11 @@ sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "..")))
 
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader
 
 from utils.preprocess import preprocess
-from pytorchocr.dataset.rec_dataset import RecognitionDataset
 
-def build_dataloader(config, mode, device, logger):
-    dataset = RecognitionDataset(config, mode, logger)
-
-    loader_config = config[mode]["loader"]
-    batch_size = loader_config["batch_size_per_card"]
-    drop_last = loader_config["drop_last"]
-    shuffle = loader_config["shuffle"]
-    num_workers = loader_config["num_workers"]
-
-    data_loader = DataLoader(
-        dataset = dataset,
-        batch_size = batch_size,
-        shuffle = shuffle,
-        num_workers = num_workers,
-        drop_last = False,
-    )
-    
-    return data_loader
+from pytorchocr.dataset.dataset import build_dataloader
+from pytorchocr.loss.loss import build_loss
 
 
 
@@ -37,10 +19,6 @@ def main(config, device, logger):
     # build dataloader
     train_dataloader = build_dataloader(config, "Train", device, logger)
     val_dataloader = build_dataloader(config, "Eval", device, logger)
-
-    for batch_idx, batch in enumerate(train_dataloader):
-        import ipdb; ipdb.set_trace()
-
 
     # build loss
     loss_class = build_loss(config["Loss"])
