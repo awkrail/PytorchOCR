@@ -14,7 +14,6 @@ from pytorchocr.dataset.rec_dataset import RecognitionDataset
 
 def build_dataloader(config, mode, device, logger):
     dataset = RecognitionDataset(config, mode, logger)
-    out = dataset[0]
 
     loader_config = config[mode]["loader"]
     batch_size = loader_config["batch_size_per_card"]
@@ -22,11 +21,26 @@ def build_dataloader(config, mode, device, logger):
     shuffle = loader_config["shuffle"]
     num_workers = loader_config["num_workers"]
 
+    data_loader = DataLoader(
+        dataset = dataset,
+        batch_size = batch_size,
+        shuffle = shuffle,
+        num_workers = num_workers,
+        drop_last = False,
+    )
+    
+    return data_loader
+
+
 
 def main(config, device, logger):
     # build dataloader
     train_dataloader = build_dataloader(config, "Train", device, logger)
     val_dataloader = build_dataloader(config, "Eval", device, logger)
+
+    for batch_idx, batch in enumerate(train_dataloader):
+        import ipdb; ipdb.set_trace()
+
 
     # build loss
     loss_class = build_loss(config["Loss"])

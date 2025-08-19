@@ -3,7 +3,7 @@ import yaml
 import torch
 
 from argparse import ArgumentParser
-from utils.logging import get_logger
+from utils.logging import get_logger, print_dict
 
 class ArgParser(ArgumentParser):
     def __init__(self):
@@ -39,6 +39,8 @@ def preprocess(is_train=False):
     assert algorithm in [
         "CRNN"
     ]
+
+    print_dict(config, logger)
 
     device = "gpu:{}".format(0) if use_gpu else "cpu"
     logger.info("train with PyTorch {} and device {}".format(torch.__version__, device))

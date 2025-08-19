@@ -67,35 +67,34 @@ Train:
       - RecAug: 
       - RecResizeImg:
           image_shape: [3, 32, 320]
-      - ToTensor:
+      - ToImageTensor:
     label_transforms:
       - CTCLabelEncode:
           max_text_length: 25
           character_dict_path: pytorchocr/dicts/en_dict.txt
-      - ToTensor:
-        #- KeepKeys:
-        #keep_keys: ['image', 'label', 'length']
+      - ToLabelTensor:
   loader:
     shuffle: True
     batch_size_per_card: 256
-    drop_last: True
-    num_workers: 8
+    drop_last: False
+    num_workers: 0
 
 Eval:
   dataset:
     name: RecognitionDataset
     data_dir: ./ICDAR2015
-    transforms:
-      - DecodeImage: # load image
-          img_mode: BGR
-          channel_first: False
-      - CTCLabelEncode: # Class handling label
+    image_transforms:
+      - RecAug: 
       - RecResizeImg:
           image_shape: [3, 32, 320]
-      - KeepKeys:
-          keep_keys: ['image', 'label', 'length'] # dataloader will return list in this order
+      - ToImageTensor:
+    label_transforms:
+      - CTCLabelEncode:
+          max_text_length: 25
+          character_dict_path: pytorchocr/dicts/en_dict.txt
+      - ToLabelTensor:
   loader:
     shuffle: False
     drop_last: False
     batch_size_per_card: 256
-    num_workers: 8
+    num_workers: 0

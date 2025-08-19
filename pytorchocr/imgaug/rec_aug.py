@@ -4,6 +4,12 @@ import random
 import cv2
 import numpy as np
 
+from .text_image_aug.augment import (
+    tia_perspective,
+    tia_stretch,
+    tia_distort,
+)
+
 
 class ToImageTensor:
     def __init__(
@@ -147,6 +153,7 @@ def get_crop(image, top_min = 1, top_max = 8):
     top_crop = int(random.randint(top_min, top_max))
     top_crop = min(top_crop, h - 1)
     crop_image = image.copy()
+    ratio = random.randint(0, 1)
     if ratio:
         crop_image = crop_image[top_crop:h, :, :]
     else:
