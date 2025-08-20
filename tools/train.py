@@ -15,7 +15,7 @@ from pytorchocr.dataset.dataset import build_dataloader
 from pytorchocr.loss.loss import build_loss
 from pytorchocr.metric.metric import build_metric
 from pytorchocr.postprocess.postprocess import build_postprocess
-
+from pytorchocr.model.model import build_model
 from pytorchocr.optimizer.optimizer import build_optimizer
 
 
