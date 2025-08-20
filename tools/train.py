@@ -14,6 +14,8 @@ from utils.preprocess import preprocess
 from pytorchocr.dataset.dataset import build_dataloader
 from pytorchocr.loss.loss import build_loss
 from pytorchocr.metric.metric import build_metric
+from pytorchocr.postprocess.postprocess import build_postprocess
+
 from pytorchocr.optimizer.optimizer import build_optimizer
 
 
@@ -28,7 +30,15 @@ def main(config, device, logger):
     # build metric
     metric = build_metric(config["Metric"])
 
-    import ipdb; ipdb.set_trace()
+    # build postprocess
+    post_processor = build_postprocess(config["PostProcess"], config["Global"])
+
+    # build model
+    if config["Global"]["task"] == "rec":
+        character_num = len(post_processor.character)
+        config["Architecture"]["Head"]["out_channels"] = character_num
+
+    model = build_model(config["Architecture"])
 
     """
     # load pretrained model

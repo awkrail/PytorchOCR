@@ -1,4 +1,5 @@
 Global:
+  task: rec
   use_gpu: False
   epoch_num: 500
   log_smooth_window: 20
@@ -15,7 +16,7 @@ Global:
   use_visualdl: False
   infer_img:
   # for data or label process
-  character_dict_path: ppocr/utils/en_dict.txt
+  character_dict_path: pytorchocr/dicts/en_dict.txt
   max_text_length: 25
   infer_mode: False
   use_space_char: True
