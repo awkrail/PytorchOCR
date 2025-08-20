@@ -14,7 +14,7 @@ def juild_lr_scheduler(lr_config, epochs, step_each_epochs):
     scheduler = SCHEDULER_DICT[lr_config['name']]()
     return scheduler
 
-def build_optimizer(config, epochs, step_each_epoch):
+def build_optimizer(config, epochs, step_each_epoch, model):
     assert 'name' in config and 'lr' in config, "name and lr should be set in optimizer config"
     assert config['name'] in OPTIM_DICT, "{} does not exist in OPTIM_DICT".format(config['name'])
     assert 'name' in config['lr'], "name should be set in lr_config"

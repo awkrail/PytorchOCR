@@ -28,7 +28,10 @@ class RecognitionModel(nn.Module):
         self.head = build_head(config["Head"])
 
     def forward(self, x, data=None):
-        pass
+        x = self.backbone(x)
+        x = self.neck(x)
+        x = self.head(x)
+        return x
 
 
 MODEL_DICT = {

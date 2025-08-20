@@ -16,6 +16,9 @@ class RecMetric:
         self.correct_num = 0
         self.all_num = 0
 
+    def calculate_accuracy(self):
+        return self.correct_num / (self.all_num + self.eps)
+
     def __call__(self, pred_label, *args, **kwargs):
         preds, labels = pred_label
         correct_num = 0
