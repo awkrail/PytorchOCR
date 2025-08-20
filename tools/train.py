@@ -18,6 +18,23 @@ from pytorchocr.postprocess.postprocess import build_postprocess
 from pytorchocr.model.model import build_model
 from pytorchocr.optimizer.optimizer import build_optimizer
 
+def load_pretrained_weights(model, global_config, logger):
+    if "checkpoints" in global_config:
+        checkpoint_path = global_config["checkpoints"]
+        pretrained_dict = torch.load(checkpoint_path)
+        model_dict = model.state_dict()
+
+        filtered_dict = {
+            k: v for k, v in pretrained_dict.items()
+            if k in model_dict and v.shape == model_dict[k].shape
+        }
+
+        model_dict.update(filtered_dict)
+        model.load_state_dict(model_dict)
+        logger.info("loaded pretrained weights: {}".format(checkpoint_path))
+    else:
+        logger.warning("checkpoints in config is NULL, so the weights are loaded from random weights")
+
 
 def main(config, device, logger):
     # build dataloader
@@ -39,15 +56,7 @@ def main(config, device, logger):
         config["Architecture"]["Head"]["out_channels"] = character_num
 
     model = build_model(config["Architecture"])
-
-    """
-    # load pretrained model
-    pre_best_model_dict = load_model(
-        config,
-        model,
-        optimizer,
-        config["Architecture"]["model_type"]
-    )
+    load_pretrained_weights(model, config["Global"], logger)
 
     # build optimizer
     optimizer, lr_scheduler = build_optmizer(
@@ -57,6 +66,7 @@ def main(config, device, logger):
         model=model,
     )
 
+    """
     train(
         config,
         train_dataloader,

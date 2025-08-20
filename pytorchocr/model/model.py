@@ -1,7 +1,8 @@
 import torch.nn as nn
 
 from pytorchocr.model.backbone.backbone import build_backbone
-# from pytorchocr.modeling.head.head import build_head
+from pytorchocr.model.neck.neck import build_neck
+from pytorchocr.model.head.head import build_head
 
 class RecognitionModel(nn.Module):
     def __init__(self, config):
@@ -16,14 +17,15 @@ class RecognitionModel(nn.Module):
         in_channels = self.backbone.out_channels
 
         # Neck: RNN, e.g., LSTM
+        assert "Neck" in config, "Neck should be set in config."
         config["Neck"]["in_channels"] = in_channels
-        # self.neck = build_neck(config["Neck"])
+        self.neck = build_neck(config["Neck"])
         in_channels = self.neck.out_channels
 
         # Head: 
+        assert "Head" in config, "Head should be set in config."
         config["Head"]["in_channels"] = in_channels
-        # self.head = build_head(config["Head"])
-
+        self.head = build_head(config["Head"])
 
     def forward(self, x, data=None):
         pass
