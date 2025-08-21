@@ -37,8 +37,8 @@ class RecognitionDataset(Dataset):
         image = cv2.imread(image_path)
 
         image = self.image_transforms(image)
-
         label_info = self.label_transforms(label)
+
         word = label_info['word']
         label = label_info['label']
         length = label_info['length']

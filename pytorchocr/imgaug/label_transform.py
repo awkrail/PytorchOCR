@@ -77,32 +77,43 @@ class BaseRecLabelEncode:
                 text_list.append(self.dict[char])
 
         if len(text_list) == 0:
-            return None
+            return []
+
         return text_list
 
 
 class CTCLabelEncode(BaseRecLabelEncode):
-    def __init__(
-        self,
-        max_text_length,
-        character_dict_path = None,
-        use_space_char = False,
-        **kwargs,
-    ):
-        super(CTCLabelEncode, self).__init__(
-            max_text_length, character_dict_path, use_space_char
-        )
-    
-    def __call__(self, label):
-        char_list = self.encode(label)
-        length = len(char_list)
-        char_list = char_list + [0] * (self.max_text_len - length)
-        label_arr = np.array(char_list)
+    """ Convert between text-label and text-index """
 
-        output = {
-            'word' : label,
-            'label' : label_arr,
-            'length' : length
+    def __init__(self,
+                 max_text_length,
+                 character_dict_path=None,
+                 use_space_char=False,
+                 **kwargs):
+        super(CTCLabelEncode, self).__init__(
+            max_text_length, character_dict_path, use_space_char)
+
+    def __call__(self, word):
+        text = self.encode(word)
+        length = len(text)
+        text = text + [0] * (self.max_text_len - len(text))
+
+        padded_label = np.array(text)
+        """
+        label = [0] * len(self.character)
+        for x in text:
+            label[x] += 1
+        data['label_ace'] = np.array(label)
+        """
+        
+        data = {
+            'word' : word,
+            'label' : padded_label,
+            'length' : length,
         }
 
-        return output
+        return data
+
+    def add_special_char(self, dict_character):
+        dict_character = ['blank'] + dict_character
+        return dict_character

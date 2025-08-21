@@ -22,27 +22,15 @@ def load_pretrained_weights(model, global_config, logger):
     if "checkpoints" in global_config:
         checkpoint_path = global_config["checkpoints"]
         pretrained_dict = torch.load(checkpoint_path)
-        model_dict = model.state_dict()
-
-        filtered_dict = {
-            k: v for k, v in pretrained_dict.items()
-            if k in model_dict and v.shape == model_dict[k].shape
-        }
-
-        model_dict.update(filtered_dict)
-        model.load_state_dict(model_dict)
+        model.load_state_dict(pretrained_dict)
         logger.info("Loaded pretrained weights: {}".format(checkpoint_path))
     else:
-        logger.warning("Checkpoints in config is NULL, so the weights are loaded from random weights")
-
-
-def construct_pred_label_pairs(post_result, batch):
-    labels = [(x, 1.0) for x in batch['word']] # 1.0 is dummy
-    return post_result, labels
+        logger.warning("Checkpoints in config is None, so the weights are loaded from random weights")
 
 
 def evaluate(
     model,
+    device,
     val_dataloader,
     evaluator,
     post_processor,
@@ -59,19 +47,20 @@ def evaluate(
         evaluator.reset()
 
         for idx, batch in enumerate(val_dataloader):
-            images = batch['image']
-            labels = batch['label']
-            lengths = batch['length']
+            images = batch['image'].to(device)
+            labels = batch['label'].to(device)
+            lengths = batch['length'].to(device)
 
             preds = model(images)
             post_result = post_processor(preds['res'])
-            pred_labels = construct_pred_label_pairs(post_result, batch)
-            evaluator(pred_labels)
+            pred_words = [x[0] for x in post_result]
+            evaluator(pred_words, batch['word'])
             pbar.update(1)
 
     accuracy = evaluator.calculate_accuracy()
+    ned = evaluator.calculate_ned()
     pbar.close()
-    return accuracy
+    return accuracy, ned
 
 
 def train(
@@ -96,30 +85,29 @@ def train(
     for epoch in range(epoch_num):
         for idx, batch in enumerate(train_dataloader):
             model.train()
-            images = batch['image']
-            labels = batch['label']
-            lengths = batch['length']
+            images = batch['image'].to(device)
+            labels = batch['label'].to(device)
+            lengths = batch['length'].to(device)
 
             optimizer.zero_grad()
             preds = model(images)
             loss = criterion(preds, labels, lengths)
 
-            logger.info("Epoch: {} Iter: {} Loss: {}".format(epoch, idx, loss.item()))
-
             loss.backward()
             optimizer.step()
-            lr_scheduler.step()
 
             if idx % eval_batch_step == 0:
-                accuracy = evaluate(model, val_dataloader, evaluator, post_processor)
-                logger.info("Epoch: {} Iter {} accuracy = {}".format(epoch, idx, accuracy))
+                accuracy, ned = evaluate(model, device, val_dataloader, evaluator, post_processor)
+                logger.info("Epoch: {} Iter {} accuracy = {} NED = {}".format(epoch, idx, accuracy, ned))
 
                 if accuracy > max_accuracy:
                     max_accuracy = accuracy
                     save_model_path = save_path.format(config["Global"]["save_model_dir"], epoch, idx, max_accuracy)
                     torch.save(model.state_dict(), save_model_path)
-                    logger.info("Max accuracy is updated, accuracy = {}".format(max_accuracy))
+                    logger.info("Max accuracy is updated, accuracy = {} NED = {}".format(max_accuracy, ned))
                     logger.info("Model saved: {}".format(save_model_path))
+
+        lr_scheduler.step()
 
 
 def main(config, device, logger):
@@ -144,6 +132,7 @@ def main(config, device, logger):
 
     model = build_model(config["Architecture"])
     load_pretrained_weights(model, config["Global"], logger)
+    model.to(device)
 
     # build optimizer
     optimizer, lr_scheduler = build_optimizer(

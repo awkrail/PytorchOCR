@@ -1,5 +1,7 @@
 import torch
 
+from torchvision import transforms
+
 from pytorchocr.imgaug.rec_aug import (
     RecAug,
     RecResizeImg,
@@ -15,6 +17,8 @@ TRANSFORM_DICTS = {
     "RecAug" : RecAug,
     "RecResizeImg" : RecResizeImg,
     "ToImageTensor" : ToImageTensor,
+    "ToTensor" : transforms.ToTensor,
+    "Normalize" : transforms.Normalize,
     "ToLabelTensor" : ToLabelTensor,
     "CTCLabelEncode" : CTCLabelEncode,
 }

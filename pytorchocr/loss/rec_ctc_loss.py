@@ -7,7 +7,7 @@ class CTCLoss(nn.Module):
         use_focal_loss = False, 
         **kwargs):
         super(CTCLoss, self).__init__()
-        self.loss_func = nn.CTCLoss(reduction = 'none')
+        self.loss_func = nn.CTCLoss(blank = 0, reduction = 'none', zero_infinity = True)
         self.use_focal_loss = use_focal_loss
 
     def forward(self, predicts, labels, label_lengths):
@@ -17,7 +17,7 @@ class CTCLoss(nn.Module):
         predicts = predicts.log_softmax(2)
         predicts = predicts.permute(1, 0, 2)
 
-        pred_lengths = torch.tensor([predicts.size(0)] * batch_size, dtype=torch.long)
+        pred_lengths = torch.tensor([predicts.size(0)] * batch_size, dtype=torch.long).to('cuda')
         loss = self.loss_func(predicts, labels, pred_lengths, label_lengths)
 
         return loss.mean()

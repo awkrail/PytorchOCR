@@ -111,7 +111,7 @@ class CTCLabelDecode(BaseRecLabelDecode):
         *args,
         **kwargs,
     ):
-        preds = preds.numpy()
+        preds = preds.cpu().numpy()
         preds_idx = preds.argmax(axis=2)
         preds_prob = preds.max(axis=2)
 

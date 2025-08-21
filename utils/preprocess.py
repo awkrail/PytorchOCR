@@ -42,6 +42,6 @@ def preprocess(is_train=False):
 
     print_dict(config, logger)
 
-    device = "gpu:{}".format(0) if use_gpu else "cpu"
+    device = "cuda" if use_gpu else "cpu"
     logger.info("train with PyTorch {} and device {}".format(torch.__version__, device))
     return config, device, logger
